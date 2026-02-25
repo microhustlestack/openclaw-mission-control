@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Mission Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="icon">🦞</span>
+                <h1>Mission Control</h1>
+            </div>
+            <div class="controls">
+                <button id="themeToggle" class="btn-icon" title="Toggle Theme">🌙</button>
+                <button id="refreshBtn" class="btn-icon" title="Refresh">🔄</button>
+                <span class="status-indicator online">●</span>
+            </div>
+        </header>
+
+        <!-- Metrics Bar -->
+        <div class="metrics-bar">
+            <div class="metric">
+                <span class="metric-label">Today</span>
+                <span class="metric-value" id="costToday">$0.00</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Model</span>
+                <span class="metric-value" id="currentModel">kimi-k2.5</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Cache</span>
+                <span class="metric-value" id="cacheRate">99%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Sessions</span>
+                <span class="metric-value" id="sessionCount">7</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Kanban Board -->
+            <div class="kanban-container">
+                <div class="kanban-header">
+                    <h2>📋 Project Board</h2>
+                    <button id="addTaskBtn" class="btn-primary">+ Add Task</button>
+                </div>
+                
+                <div class="kanban-board">
+                    <!-- To Do Column -->
+                    <div class="kanban-column" data-column="todo">
+                        <div class="column-header">
+                            <span class="column-title">To Do</span>
+                            <span class="column-count" id="countTodo">0</span>
+                        </div>
+                        <div class="column-content" id="todoList">
+                            <!-- Tasks injected here -->
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column" data-column="progress">
+                        <div class="column-header">
+                            <span class="column-title">In Progress</span>
+                            <span class="column-count" id="countProgress">0</span>
+                        </div>
+                        <div class="column-content" id="progressList">
+                            <!-- Tasks injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-column" data-column="done">
+                        <div class="column-header">
+                            <span class="column-title">Done</span>
+                            <span class="column-count" id="countDone">0</span>
+                        </div>
+                        <div class="column-content" id="doneList">
+                            <!-- Tasks injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <!-- Model Switcher -->
+                <div class="panel">
+                    <h3>🎛️ Model Control</h3>
+                    <div class="model-list">
+                        <button class="model-btn active" data-model="local/llama3.2">
+                            <span class="model-name">llama3.2</span>
+                            <span class="model-cost free">FREE</span>
+                        </button>
+                        <button class="model-btn" data-model="local/qwen2.5">
+                            <span class="model-name">qwen2.5</span>
+                            <span class="model-cost free">FREE</span>
+                        </button>
+                        <button class="model-btn" data-model="openrouter/moonshotai/kimi-k2.5">
+                            <span class="model-name">kimi-k2.5</span>
+                            <span class="model-cost">$2/M</span>
+                        </button>
+                        <button class="model-btn" data-model="openrouter/google/gemini-2.0-flash">
+                            <span class="model-name">gemini-flash</span>
+                            <span class="model-cost">$0.10/M</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="panel">
+                    <h3>⚡ Quick Actions</h3>
+                    <div class="action-grid">
+                        <button class="action-btn" onclick="runCommand('optimize')">
+                            <span>🔍</span>
+                            <span>Optimize</span>
+                        </button>
+                        <button class="action-btn" onclick="runCommand('agents')">
+                            <span>👥</span>
+                            <span>Agents</span>
+                        </button>
+                        <button class="action-btn" onclick="runCommand('cron')">
+                            <span>⏰</span>
+                            <span>Cron</span>
+                        </button>
+                        <button class="action-btn" onclick="runCommand('cost')">
+                            <span>💰</span>
+                            <span>Cost</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="panel">
+                    <h3>📊 Activity</h3>
+                    <ul class="activity-list" id="activityList">
+                        <li>Session started</li>
+                        <li>Cache hit: 99%</li>
+                        <li>Model: kimi-k2.5</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Task</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="taskInput" placeholder="Task description...">
+                <select id="taskColumn">
+                    <option value="todo">To Do</option>
+                    <option value="progress">In Progress</option>
+                    <option value="done">Done</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button id="saveTaskBtn" class="btn-primary">Add Task</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

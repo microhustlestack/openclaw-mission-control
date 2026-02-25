@@ -1,0 +1,112 @@
+#!/bin/bash
+# OpenClaw Mission Control - Main CLI
+# Usage: mc <command> [args]
+
+MC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$MC_DIR"
+
+case "$1" in
+    status)
+        python3 "$SCRIPT_DIR/dashboard.py"
+        ;;
+    status-json)
+        python3 "$SCRIPT_DIR/dashboard.py" --json
+        ;;
+    switch)
+        if [ -z "$2" ]; then
+            echo "Usage: mc switch <local|remote|model-name>"
+            echo "  mc switch local     → Free local model"
+            echo "  mc switch remote    → Paid remote model"
+            echo "  mc switch llama3.2  → Specific model"
+        else
+            python3 "$SCRIPT_DIR/controller.py" switch "$2"
+        fi
+        ;;
+    local)
+        python3 "$SCRIPT_DIR/controller.py" local
+        ;;
+    remote)
+        python3 "$SCRIPT_DIR/controller.py" remote
+        ;;
+    models)
+        python3 "$SCRIPT_DIR/controller.py" models
+        ;;
+    agents)
+        python3 "$SCRIPT_DIR/controller.py" agents
+        ;;
+    kill)
+        if [ -z "$2" ]; then
+            echo "Usage: mc kill <agent-id>"
+        else
+            python3 "$SCRIPT_DIR/controller.py" kill "$2"
+        fi
+        ;;
+    spawn)
+        if [ -z "$2" ]; then
+            echo "Usage: mc spawn '<task description>'"
+        else
+            python3 "$SCRIPT_DIR/controller.py" spawn "${@:2}"
+        fi
+        ;;
+    cron)
+        openclaw cron list
+        ;;
+    optimize)
+        if [ "$2" == "--auto" ]; then
+            python3 "$SCRIPT_DIR/optimizer.py" --auto "$3"
+        else
+            python3 "$SCRIPT_DIR/optimizer.py"
+        fi
+        ;;
+    kanban)
+        python3 "$SCRIPT_DIR/dashboard.py" --kanban
+        ;;
+    web)
+        python3 "$SCRIPT_DIR/web_server.py" &
+        echo "🌐 Mission Control Web UI: http://localhost:9090"
+        echo "   Press Ctrl+C to stop"
+        wait
+        ;;
+    theme)
+        if [ "$2" == "light" ]; then
+            export MC_THEME=light
+            echo "☀️  Light theme set"
+        else
+            export MC_THEME=dark
+            echo "🌙 Dark theme set"
+        fi
+        ;;
+    cost)
+        openclaw cost today
+        ;;
+    help|--help|-h)
+        cat << 'EOF'
+🦞 OpenClaw Mission Control
+
+Commands:
+  mc status              Dashboard with all metrics
+  mc status-json         JSON format for scripting
+  mc switch <model>      Switch models (local/remote/name)
+  mc local               Quick switch to local model
+  mc remote              Quick switch to remote model
+  mc models              List available models
+  mc agents              List sub-agents
+  mc kill <id>           Terminate a sub-agent
+  mc spawn <task>        Create new sub-agent
+  mc cron                List cron jobs
+  mc optimize            Analyze and optimize usage
+  mc cost                Today's spending
+  mc help                This help message
+
+Examples:
+  mc switch llama3.2
+  mc spawn "Analyze codebase"
+  mc optimize --auto 0.10
+EOF
+        ;;
+    *)
+        echo "Unknown command: $1"
+        echo "Run 'mc help' for usage"
+        exit 1
+        ;;
+esac
